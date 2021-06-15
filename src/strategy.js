@@ -8,7 +8,6 @@ const OAuth2Strategy = require('passport-oauth2'),
     AppleClientSecret = require("./token"),
     util = require('util'),
     querystring = require('querystring');
-const { profile } = require('winston');
 
 /**
  * Passport Strategy Constructor
