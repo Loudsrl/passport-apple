@@ -8,6 +8,7 @@ const OAuth2Strategy = require('passport-oauth2'),
     AppleClientSecret = require("./token"),
     util = require('util'),
     querystring = require('querystring');
+const { profile } = require('winston');
 
 /**
  * Passport Strategy Constructor
@@ -21,6 +22,7 @@ const OAuth2Strategy = require('passport-oauth2'),
  *      keyID: "",
  *      privateKeyLocation: "",
  *      passReqToCallback: true
+ * callback(null, access_token, refresh_token, results.id_token);
  *   }, function(req, accessToken, refreshToken, idToken, __ , cb) {
  *       // The idToken returned is encoded. You can use the jsonwebtoken library via jwt.decode(idToken)
  *       // to access the properties of the decoded idToken properties which contains the user's
@@ -56,6 +58,7 @@ function Strategy(options, verify) {
     // Make the OAuth call
     OAuth2Strategy.call(this, options, verify);
     this.name = 'apple';
+    this._userId = "";
 
     // Initiliaze the client_secret generator
     const _tokenGenerator = new AppleClientSecret({
@@ -80,6 +83,7 @@ function Strategy(options, verify) {
             const post_headers = {
                 'Content-Type': 'application/x-www-form-urlencoded'
             };
+
             this._request(
                 'POST',
                 this._getAccessTokenUrl(),
@@ -118,6 +122,11 @@ Strategy.prototype.authenticate = function (req, options) {
     if(req.body && req.body.user){
       req.appleProfile = JSON.parse(req.body.user)
     }
+    if(req.query.user_id) {
+        this._userId = req.query.user_id;
+    } else {
+        return this.error(new Error('user_id required as parameter in callback method'));
+    }
     OAuth2Strategy.prototype.authenticate.call(this, req, options);
   };
 
@@ -135,6 +144,18 @@ Strategy.prototype.authorizationParams = function (options) {
     return options;
 }
 
+
+Strategy.prototype.userProfile = function(accessToken, done) {
+    var self = this;
+    this._oauth2.get("", accessToken, function (err, body, res) {   
+      var profile = {};   
+      profile.provider  = 'apple';
+      profile.id = self._userId;
+      
+      done(null, profile);
+    });
+  }
+  
 // Expose Strategy.
 exports = module.exports = Strategy;
 
