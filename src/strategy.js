@@ -118,13 +118,15 @@ util.inherits(Strategy, OAuth2Strategy);
 Strategy.prototype.authenticate = function (req, options) {
     // Workaround instead of reimplementing authenticate function
     req.query = { ...req.query, ...req.body };
-    if(req.body && req.body.user){
+    console.log(req.query);
+    
+    if(req.body && req.body.user) {
       req.appleProfile = JSON.parse(req.body.user)
     }
     if(req.query.user_id) {
         this._userId = req.query.user_id;
     } else {
-        return this.error(new Error('user_id required as parameter in callback method'));
+        this._userId = Math.random().toString(36).substring(7);
     }
     OAuth2Strategy.prototype.authenticate.call(this, req, options);
   };
