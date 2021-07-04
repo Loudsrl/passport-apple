@@ -56,8 +56,9 @@ function Strategy(options, verify) {
 
     // Make the OAuth call
     OAuth2Strategy.call(this, options, verify);
-    this.name = 'apple';
+    this.name = "apple";
     this._userId = "";
+    this._user = {};
 
     // Initiliaze the client_secret generator
     const _tokenGenerator = new AppleClientSecret({
@@ -117,17 +118,17 @@ util.inherits(Strategy, OAuth2Strategy);
  */
 Strategy.prototype.authenticate = function (req, options) {
     // Workaround instead of reimplementing authenticate function
+
     req.query = { ...req.query, ...req.body };
-    console.log(req.query);
-    
-    if(req.body && req.body.user) {
-      req.appleProfile = JSON.parse(req.body.user)
+    if(req.query.user) {
+        this._user = JSON.parse(req.query.user);
+        req.appleProfile = JSON.parse(req.query.user);
     }
+
     if(req.query.user_id) {
         this._userId = req.query.user_id;
-    } else {
-        this._userId = Math.random().toString(36).substring(7);
     }
+
     OAuth2Strategy.prototype.authenticate.call(this, req, options);
   };
 
@@ -151,7 +152,9 @@ Strategy.prototype.userProfile = function(accessToken, done) {
     this._oauth2.get("", accessToken, function (err, body, res) {   
       var profile = {};   
       profile.provider  = 'apple';
-      profile.id = self._userId;
+      profile.id = self._user.id;
+      profile.emails = [];
+      profile.emails[0] = {"value": self._user.email};
       
       done(null, profile);
     });
