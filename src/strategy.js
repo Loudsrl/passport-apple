@@ -148,11 +148,16 @@ Strategy.prototype.authorizationParams = function (options) {
 
 
 Strategy.prototype.userProfile = function(accessToken, done) {
+    console.log("THE USER", this._user);
+
     var self = this;
     this._oauth2.get("", accessToken, function (err, body, res) {   
       var profile = {};   
       profile.provider  = 'apple';
       profile.id = self._user.id;
+      profile.name = {};
+      profile.name["givenName"] = self._user.first_name;
+      profile.name["familyName"] = self._user.last_name;
       profile.emails = [];
       profile.emails[0] = {"value": self._user.email};
       
