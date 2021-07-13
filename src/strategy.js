@@ -7,7 +7,8 @@ const OAuth2Strategy = require('passport-oauth2'),
     crypto = require('crypto'),
     AppleClientSecret = require("./token"),
     util = require('util'),
-    querystring = require('querystring');
+    querystring = require('querystring'),
+    jwt = require('jsonwebtoken');
 
 /**
  * Passport Strategy Constructor
@@ -50,15 +51,15 @@ const OAuth2Strategy = require('passport-oauth2'),
 function Strategy(options, verify) {
     // Set the URLs
     options = options || {};
-    options.authorizationURL = options.authorizationURL || 'https://appleid.apple.com/auth/authorize';
+    options.authorizationURL = options.authorizationURL || 'https://appleid.apple.com/auth/authorize]scope=name%20email';
     options.tokenURL = options.tokenURL || 'https://appleid.apple.com/auth/token';
     options.passReqToCallback = options.passReqToCallback === undefined ? true : options.passReqToCallback
 
     // Make the OAuth call
     OAuth2Strategy.call(this, options, verify);
-    this.name = "apple";
-    this._userId = "";
     this._user = {};
+
+    var self = this;
 
     // Initiliaze the client_secret generator
     const _tokenGenerator = new AppleClientSecret({
@@ -95,6 +96,11 @@ function Strategy(options, verify) {
                         callback(error);
                     } else {
                         const results = JSON.parse(data);
+
+                        var decoded = jwt.decode(results.id_token);
+                        self._user.email = decoded["email"];
+                        self._user.id = decoded["sub"];
+
                         const access_token = results.access_token;
                         const refresh_token = results.refresh_token;
                         callback(null, access_token, refresh_token, results.id_token);
@@ -120,13 +126,10 @@ Strategy.prototype.authenticate = function (req, options) {
     // Workaround instead of reimplementing authenticate function
 
     req.query = { ...req.query, ...req.body };
+
     if(req.query.user) {
         this._user = JSON.parse(req.query.user);
         req.appleProfile = JSON.parse(req.query.user);
-    }
-
-    if(req.query.user_id) {
-        this._userId = req.query.user_id;
     }
 
     OAuth2Strategy.prototype.authenticate.call(this, req, options);
@@ -148,16 +151,16 @@ Strategy.prototype.authorizationParams = function (options) {
 
 
 Strategy.prototype.userProfile = function(accessToken, done) {
-    console.log("THE USER", this._user);
-
     var self = this;
-    this._oauth2.get("", accessToken, function (err, body, res) {   
+
+    this._oauth2.get("", accessToken, function (err, body, res) {    
+
       var profile = {};   
       profile.provider  = 'apple';
       profile.id = self._user.id;
       profile.name = {};
-      profile.name["givenName"] = self._user.first_name;
-      profile.name["familyName"] = self._user.last_name;
+      self._user.first_name ? profile.name["givenName"] = self._user.first_name : "";
+      self._user.last_name ? profile.name["familyName"] = self._user.last_name : "";
       profile.emails = [];
       profile.emails[0] = {"value": self._user.email};
       
