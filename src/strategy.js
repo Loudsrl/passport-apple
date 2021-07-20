@@ -158,11 +158,17 @@ Strategy.prototype.userProfile = function(accessToken, done) {
       var profile = {};   
       profile.provider  = 'apple';
       profile.id = self._user.id;
-      profile.name = {};
-      self._user.first_name ? profile.name["givenName"] = self._user.first_name : "";
-      self._user.last_name ? profile.name["familyName"] = self._user.last_name : "";
-      profile.emails = [];
-      profile.emails[0] = {"value": self._user.email};
+
+      if (self._user.first_name) {
+        profile.name = {};
+        self._user.first_name ? profile.name["givenName"] = self._user.first_name : "";
+        self._user.last_name ? profile.name["familyName"] = self._user.last_name : "";
+      }
+
+      if (self._user.email) {
+        profile.emails = [];
+        profile.emails[0] = {"value": self._user.email};
+      }
       
       done(null, profile);
     });
