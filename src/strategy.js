@@ -168,6 +168,9 @@ Strategy.prototype.userProfile = function(accessToken, done) {
       if (self._user.email) {
         profile.emails = [];
         profile.emails[0] = {"value": self._user.email};
+      } else {
+        profile.emails = [];
+        profile.emails[0] = {"value": self._user.id + "@loopback.apple.com"};
       }
       
       done(null, profile);
