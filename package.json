@@ -1,5 +1,5 @@
 {
-  "name": "passport-apple",
+  "name": "@luciamaj/passport-apple-fix",
   "version": "2.0.1",
   "description": "Passport strategy for Sign in with Apple",
   "main": "src/strategy.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ananay/passport-apple.git"
+    "url": "git+https://github.com/Loudsrl/passport-apple.git"
   },
   "keywords": [
     "apple",
@@ -24,12 +24,12 @@
     "authentication",
     "identity"
   ],
-  "author": "Ananay Arora <i@ananayarora.com> (https://ananayarora.com)",
+  "author": "Lucia Maj",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ananay/passport-apple/issues"
+    "url": "https://github.com/Loudsrl/passport-apple/issues"
   },
-  "homepage": "https://github.com/ananay/passport-apple#readme",
+  "homepage": "https://github.com/Loudsrl/passport-apple#readme",
   "dependencies": {
     "jsonwebtoken": "^8.5.1",
     "passport-oauth2": "^1.5.0"
