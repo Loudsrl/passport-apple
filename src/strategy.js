@@ -80,7 +80,8 @@ function Strategy(options, verify) {
             params['client_id'] = this._clientId;
             params['client_secret'] = client_secret;
 
-            const post_data = querystring.stringify(params);
+            const post_data = new URLSearchParams(params).toString();
+
             const post_headers = {
                 'Content-Type': 'application/x-www-form-urlencoded'
             };
@@ -149,7 +150,6 @@ Strategy.prototype.authorizationParams = function (options) {
     return options;
 }
 
-
 Strategy.prototype.userProfile = function(accessToken, done) {
     var self = this;
 
@@ -176,9 +176,11 @@ Strategy.prototype.userProfile = function(accessToken, done) {
       done(null, profile);
     });
   }
-  
+
+
 // Expose Strategy.
 exports = module.exports = Strategy;
 
 // Exports.
 exports.Strategy = Strategy;
+exports.AppleClientSecret = AppleClientSecret;
