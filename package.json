@@ -1,5 +1,5 @@
 {
-  "name": "@luciamaj/passport-apple-fix",
+  "name": "@lmaj/passport-apple-fix",
   "version": "2.0.2",
   "description": "Passport strategy for Sign in with Apple",
   "main": "src/strategy.js",
